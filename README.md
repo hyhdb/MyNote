@@ -1,6 +1,6 @@
 Spring Boot 기본기 & POST 요청 실습
 
-🚀 Day 1 — Spring Boot 기본기 & POST 요청 실습
+<h3>🚀 Day 1 — Spring Boot 기본기 & POST 요청 실습</h3>
 
 Day 1에서는 Spring Boot 백엔드 개발의 기본 구조를 익히고
 Controller / Service 분리, JSON 입력, POST 요청 처리까지 실습
@@ -59,7 +59,7 @@ Controller / Service 분리, JSON 입력, POST 요청 처리까지 실습
 
 - 패키지 구조 설계 방법
 
-🚀 Day 2 — DB 연결 & H2 콘솔 설정
+<h3>🚀 Day 2 — DB 연결 & H2 콘솔 설정</h3>
 
 📦 Day 2 학습 목표
 
