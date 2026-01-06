@@ -37,7 +37,7 @@ public class UserService {
 
     public UserResponse getOne(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("회원이 존재하지 않습니다. id =" + id));
+                .orElseThrow(() -> new NotFoundException("회원이 존재하지 않습니다. id=" + id));
 
         return new UserResponse(user.getId(), user.getName(), user.getAge());
     }
@@ -54,9 +54,9 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("회원이 존재하지 않습니다. id=" + id));
-
-        userRepository.delete(user);
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException("회원이 존재하지 않습니다. id=" + id);
+        }
+        userRepository.deleteById(id);
     }
 }

@@ -409,3 +409,55 @@ Day 4에 수정한 패키지
 - REST API 설계 흐름 체득
 - 공통 예외 처리 및 응답 구조 재사용
 - Day 7 인증/로그인 기능 확장을 위한 기반 완성
+
+<h3>🚀 Day 7 — JWT 기반 인증 및 로그인 구현</h3>
+
+📦 Day 7 학습 목표
+- JWT(JSON Web Token)의 개념과 동작 원리 이해
+- Spring Security와 JWT를 연동한 무상태(Stateless) 인증 시스템 구축
+- 비밀번호 암호화(BCrypt) 적용을 통한 보안 강화
+- 로그인 성공 시 토큰 발급 및 필터를 통한 API 접근 제어 검증
+
+```bash
+📂 Day 7 추가 및 수정 패키지 구조
+
+📦 src
+ └─📁 main
+     └─📁 java
+         └─📁 com.example.CRUD
+            ├─📁 config
+            │  ├─📄 SecurityConfig.java         # 보안 필터 체인 및 JWT 필터 등록
+            │  └─📄 PasswordEncoderConfig.java  # BCrypt 암호화 빈 설정 (NEW)
+            │
+            ├─📁 security                       # (NEW)
+            │  ├─📄 JwtTokenProvider.java       # JWT 생성 및 검증 로직
+            │  └─📄 JWTAuthenticationFilter.java # 모든 요청의 토큰을 검사하는 필터
+            │
+            ├─📁 controller
+            │  └─📄 AuthController.java         # 로그인/회원가입 API (NEW)
+            │
+            ├─📁 service
+            │  └─📄 AuthService.java            # 회원가입/로그인 비즈니스 로직 (NEW)
+            │
+            └─📁 dto
+               ├─📄 LoginRequest.java           # 로그인 요청 DTO (NEW)
+               ├─📄 LoginResponse.java          # 토큰 응답 DTO (NEW)
+               └─📄 RegisterRequest.java         # 회원가입 요청 DTO (NEW)
+```
+
+🧱 핵심 구현 내용
+- 비밀번호 안전 저장: BCryptPasswordEncoder를 사용하여 DB에 비밀번호를 해싱하여 저장.
+- 토큰 기반 인증: 로그인 성공 시 사용자의 userid 정보를 담은 JWT를 생성하여 클라이언트에 전달.
+- 인증 필터 구현: OncePerRequestFilter를 상속받아 모든 요청의 헤더에서 토큰을 추출하고 유효성을 검사.
+- 보안 설정 확장: 인증 없이 접근 가능한 경로(로그인, 회원가입, H2 콘솔)와 인증이 필요한 경로를 분리 설정.
+
+📮 Postman 테스트 결과
+- 회원가입: POST /auth/register 요청 시 비밀번호가 암호화되어 DB에 저장됨을 확인.
+- 로그인: POST /auth/login 성공 시 유효한 JWT 토큰이 반환됨을 확인.
+- 인가 테스트: 유효한 토큰을 Authorization: Bearer <Token> 헤더에 담을 시 200 OK와 함께 데이터가 반환.
+- 토큰이 없거나 잘못된 경우 403 Forbidden이 발생하여 리소스가 보호됨을 확인.
+
+📘 Day 7 요약
+- Spring Security와 JWT를 결합한 실무적인 인증 구조를 완성.
+- 서버 세션을 사용하지 않는 무상태 인증 방식의 장점을 체득.
+- 사용자 비밀번호 암호화와 토큰 만료 설정을 통해 보안 수준을 높임.
