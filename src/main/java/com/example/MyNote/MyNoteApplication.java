@@ -1,13 +1,13 @@
-package com.example.CRUD;
+package com.example.MyNote;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CrudApplication {
+public class MyNoteApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CrudApplication.class, args);
+		SpringApplication.run(MyNoteApplication.class, args);
 	}
 
 }

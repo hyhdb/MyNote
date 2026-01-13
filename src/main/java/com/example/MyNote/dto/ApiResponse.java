@@ -1,4 +1,4 @@
-package com.example.CRUD.dto;
+package com.example.MyNote.dto;
 
 public class ApiResponse<T> {
 
