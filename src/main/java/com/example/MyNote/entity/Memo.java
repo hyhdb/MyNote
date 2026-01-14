@@ -26,5 +26,12 @@ public class Memo {
     public String getContent() {return content;}
     public void setContent(String content) {this.content = content;}
 
+    @ManyToOne(fetch = FetchType.LAZY) //메모 N개는 1개의 사용자에 속함
+    @JoinColumn(name = "user_id") //DB에 user_id 칼럼 생성
+    private User user;
+
+    // Getter/Setter 추가
+    public User getUser() {return user;}
+    public void setUser(User user) {this.user = user;}
 
 }

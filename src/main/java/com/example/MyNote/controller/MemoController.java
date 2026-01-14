@@ -4,7 +4,10 @@ package com.example.MyNote.controller;
 import com.example.MyNote.dto.ApiResponse;
 import com.example.MyNote.dto.MemoRequest;
 import com.example.MyNote.dto.MemoResponse;
+import com.example.MyNote.entity.User;
+import com.example.MyNote.repository.UserRepository;
 import com.example.MyNote.service.MemoService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,22 +16,34 @@ import java.util.List;
 @RequestMapping("/memos") //이 컨트롤러의 기본 주소를 /memos로 설정
 public class MemoController {
     private final MemoService memoService;
+    private final UserRepository userRepository; //사용자 조회를 위해 추가
 
     //생성자를 통해 비즈니스 로직이 담긴 Service를 연결
-    public MemoController(MemoService memoService) {
+    public MemoController(MemoService memoService, UserRepository userRepository) {
         this.memoService = memoService;
+        this.userRepository = userRepository;
     }
 
     //1. 메모 생성 (POST /memos)
     @PostMapping
-    public ApiResponse<MemoResponse> create(@RequestBody MemoRequest request) {
+    public ApiResponse<MemoResponse> create(
+            @RequestBody MemoRequest request,
+            @AuthenticationPrincipal String username) {
         // @RequestBody: 사용자가 보낸 JSON 데이터를 객체로 변환
-        return ApiResponse.ok(memoService.create(request));
+        //토큰에서 추출한 username
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return ApiResponse.ok(memoService.create(request, user));
     }
 
-    //2. 모든 메모 조회 (GET /memos)
+    //2. 내 메모만 조회: 로그인한 상요자의 메모만 가져옴 (GET /memos)
     @GetMapping
-    public ApiResponse<List<MemoResponse>> getAll() {
-        return ApiResponse.ok(memoService.getAll());
+    public ApiResponse<List<MemoResponse>> getMyMemos(@AuthenticationPrincipal String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        return ApiResponse.ok(memoService.getMyMemos(user));
     }
 }
