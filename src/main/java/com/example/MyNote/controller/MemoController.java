@@ -46,4 +46,30 @@ public class MemoController {
 
         return ApiResponse.ok(memoService.getMyMemos(user));
     }
+
+    //3.메모 수정 (PUT /memos/{id})
+    @PutMapping("/{id}")
+    public ApiResponse<MemoResponse> update(
+            @PathVariable("id") Long id,
+            @RequestBody MemoRequest request,
+            @AuthenticationPrincipal String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException(("사용자를 찾을 수 없습니다.")));
+
+        return ApiResponse.ok(memoService.update(id, request, user));
+    }
+
+    //4.메모 삭제 (DELETE /memos/{id})
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> delete(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal String username) {
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        memoService.delete(id, user);
+        return ApiResponse.ok("메모가 삭제되었습니다.");
+
+    }
 }

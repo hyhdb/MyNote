@@ -40,4 +40,33 @@ public class MemoService {
                 .map(m -> new MemoResponse(m.getId(), m.getTitle(), m.getContent())) //응답 양식으로 변환
                 .toList();
     }
+
+    //3. 메모 수정
+    public MemoResponse update(Long id, MemoRequest request, User currentUser) {
+        Memo memo = memoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("메모를 찾을 수 없습니다."));
+
+        //작성자 확인: 메모의 주인과 현재 로그인한 유저가 같은지 체크
+        if (!memo.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+
+        memo.setTitle(request.getTitle());
+        memo.setContent(request.getContent());
+        Memo updated = memoRepository.save(memo);
+
+        return new MemoResponse(updated.getId(), updated.getTitle(), updated.getContent());
+    }
+
+    //4. 메모 삭제
+    public void delete(Long id, User currentUser) {
+        Memo memo = memoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("메모를 찾을 수 없습니다."));
+
+        if (!memo.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+
+        memoRepository.delete(memo);
+    }
 }
