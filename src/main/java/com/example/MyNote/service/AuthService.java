@@ -21,6 +21,10 @@ public class AuthService {
 
     //회원가입: 비밀번호를 암호화해서 저장
     public void register(LoginRequest request) {
+
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new RuntimeException("중복된 아이디입니다.");
+        }
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));

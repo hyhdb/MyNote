@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MyNote - 나의 메모</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📓 나의 비밀 메모장</h2>
+    <button class="btn btn-outline-danger" onclick="logout()">로그아웃</button>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">새 메모 작성</h5>
+        <input type="text" id="title" class="form-control mb-2" placeholder="제목을 입력하세요">
+        <textarea id="content" class="form-control mb-2" rows="3" placeholder="내용을 입력하세요"></textarea>
+        <button class="btn btn-primary w-100" onclick="createMemo()">메모 저장하기</button>
+    </div>
+</div>
+
+<hr>
+
+<div id="memo-list" class="row"></div>
+
+<script>
+    const token = localStorage.getItem('token'); // 로그인 시 저장한 토큰
+
+    // 페이지 로드 시 실행: 메모 목록 불러오기
+    window.onload = async function() {
+        if (!token) {
+            alert('로그인이 필요합니다!');
+            location.href = '/login';
+            return;
+        }
+        loadMemos();
+    };
+
+    // [목록 조회] GET /memos
+    async function loadMemos() {
+        const response = await fetch('/memos', {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            const memoList = document.getElementById('memo-list');
+            memoList.innerHTML = ''; // 기존 목록 초기화
+            result.data.forEach(memo => {
+                const card = `
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">${memo.title}</h5>
+                                <p class="card-text">${memo.content}</p>
+                                <button class="btn btn-sm btn-danger" onclick="deleteMemo(${memo.id})">삭제</button>
+                            </div>
+                        </div>
+                    </div>`;
+                memoList.innerHTML += card;
+            });
+        }
+    }
+
+    // [메모 저장] POST /memos
+    async function createMemo() {
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+
+        const response = await fetch('/memos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ title, content })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+            loadMemos(); // 목록 새로고침
+        } else {
+            alert('저장 실패: ' + result.error.message);
+        }
+    }
+
+    // [메모 삭제] DELETE /memos/{id}
+    async function deleteMemo(id) {
+        if (!confirm('이 메모를 삭제하시겠습니까?')) return;
+
+        const response = await fetch('/memos/' + id, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            loadMemos();
+        } else {
+            alert('삭제 실패: ' + result.error.message);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        location.href = '/login';
+    }
+</script>
+</body>
+</html>

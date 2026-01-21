@@ -29,9 +29,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String path = request.getServletPath();
+        // 로그인, 회원가입, 메인, 정적 리소스 등은 토큰 검사 없이 통과
+        if (path.startsWith("/auth/") || path.equals("/") || path.equals("/login") || path.equals("/register")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
-        if(header != null && header.startsWith("Bearer")) {
+        if(header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
             if(jwtTokenProvider.validateToken(token)) {
